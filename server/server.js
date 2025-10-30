@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
+// ✅ Import Routers
 const authRouter = require("./routes/auth/auth-routes");
 const adminProductsRouter = require("./routes/admin/products-routes");
 const adminOrderRouter = require("./routes/admin/order-routes");
@@ -17,18 +18,22 @@ const shopReviewRouter = require("./routes/shop/review-routes");
 
 const commonFeatureRouter = require("./routes/common/feature-routes");
 
+const app = express();
+const PORT = process.env.PORT || 5000;
+
 // ✅ Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((error) => console.log("❌ MongoDB connection error:", error));
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
+// ✅ Fixed CORS setup for both local + deployed frontend
 app.use(
   cors({
-    origin: "https://e-commerce-web-client-0asd.onrender.com",
+    origin: [
+      "http://localhost:5173",
+      "https://e-commerce-web-client-0asd.onrender.com", 
+    ],
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
       "Content-Type",
@@ -58,4 +63,5 @@ app.use("/api/shop/review", shopReviewRouter);
 
 app.use("/api/common/feature", commonFeatureRouter);
 
-app.listen(PORT, () => console.log(`🚀 Server is now running on port ${PORT}`));
+// ✅ Start server
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
