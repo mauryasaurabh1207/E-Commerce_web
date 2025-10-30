@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
+const app = express();
+const PORT = process.env.PORT || 5000;
+
 // ✅ Import Routers
 const authRouter = require("./routes/auth/auth-routes");
 const adminProductsRouter = require("./routes/admin/products-routes");
@@ -18,27 +21,32 @@ const shopReviewRouter = require("./routes/shop/review-routes");
 
 const commonFeatureRouter = require("./routes/common/feature-routes");
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
 // ✅ Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((error) => console.log("❌ MongoDB connection error:", error));
 
-// ✅ Fixed CORS setup for both local + deployed frontend
+// ✅ Allowed Frontend Origins (local + Vercel)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://e-commerce-web-git-main-saurabh-mauryas-projects-a4bfe440.vercel.app",
+  "https://e-commerce-web-kappa-ten.vercel.app",
+];
+
+// ✅ CORS Setup
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://e-commerce-web-git-main-saurabh-mauryas-projects-a4bfe440.vercel.app",
-      "e-commerce-web-kappa-ten.vercel.app"
-
-
-     // "https://e-commerce-web-client-0asd.onrender.com", 
-    ],
-    methods: ["GET", "POST", "DELETE", "PUT"],
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps, Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ CORS blocked origin:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -50,6 +58,7 @@ app.use(
   })
 );
 
+// ✅ Middleware
 app.use(cookieParser());
 app.use(express.json());
 
@@ -67,5 +76,11 @@ app.use("/api/shop/review", shopReviewRouter);
 
 app.use("/api/common/feature", commonFeatureRouter);
 
+// ✅ Default Route (optional)
+app.get("/", (req, res) => {
+  res.send("✅ E-Commerce Backend is running successfully!");
+});
+
 // ✅ Start server
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
