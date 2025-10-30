@@ -33,6 +33,8 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://e-commerce-web-git-main-saurabh-mauryas-projects-a4bfe440.vercel.app",
+      "e-commerce-web-kappa-ten.vercel.app"
+
 
      // "https://e-commerce-web-client-0asd.onrender.com", 
     ],
